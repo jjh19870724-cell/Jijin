@@ -1,14 +1,33 @@
-import os  # ✅ 必须先导入，否则 os 未定义
+# -*- coding: utf-8 -*-
+r"""
+导出 TOP1000 基金基本信息（含最新单位净值）到 Excel
+
+默认输出（适合 GitHub Actions / Codespaces）：
+  outputs/jijinlist.xlsx
+
+如果你想本地写到 OneDrive，运行前在环境变量里设置 OUT_PATH 即可覆盖：
+  Windows PowerShell 示例：
+    $env:OUT_PATH="C:\Users\134971\OneDrive - Arrow Electronics, Inc\Desktop\KEVIN\Share\jijinlist.xlsx"
+    python jijinalllist.py
+
+依赖：
+  pip install -U akshare pandas openpyxl
+"""
+
+import os
+import time
+from datetime import datetime
+from typing import Optional, Tuple
+
+import pandas as pd
+
+try:
+    import akshare as ak
+except ImportError:
+    raise SystemExit("未安装 akshare，请先运行：pip install -U akshare")
+
 
 # --- Output path (works on local + GitHub Actions) ---
-# 默认：写到仓库下 outputs/jijinlist.xlsx
-# 如果你想本地写到 OneDrive，运行前在环境变量里设置 OUT_PATH 即可覆盖
-# Windows PowerShell 示例：
-#   $env:OUT_PATH="C:\Users\134971\OneDrive - Arrow Electronics, Inc\Desktop\KEVIN\Share\jijinlist.xlsx"
-#   python jijinalllist.py
-#
-# GitHub Actions 不要设置 OUT_PATH，就会自动写到 outputs/
-
 DEFAULT_OUT = os.path.join("outputs", "jijinlist.xlsx")
 OUT_PATH = os.getenv("OUT_PATH", DEFAULT_OUT)
 
@@ -111,6 +130,8 @@ def fetch_latest_nav(symbol: str) -> Tuple[Optional[str], Optional[float]]:
 
 
 def main():
+    t0 = time.perf_counter()
+
     print("\n" + "=" * 90)
     print("📥 Step1) 获取基金列表（AkShare）...")
     df = get_fund_list()
@@ -143,12 +164,12 @@ def main():
     with pd.ExcelWriter(OUT_PATH, engine="openpyxl") as writer:
         df.to_excel(writer, index=False, sheet_name=f"Top{TOP_N}")
 
+    t1 = time.perf_counter()
     print("✅ 完成！文件已生成：")
     print(OUT_PATH)
+    print(f"⏱️ 总耗时：{t1 - t0:.2f} 秒")
     print("=" * 90)
 
 
 if __name__ == "__main__":
     main()
-
-
