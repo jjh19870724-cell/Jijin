@@ -1,26 +1,19 @@
-# -*- coding: utf-8 -*-
-r"""
-导出 TOP1000 基金基本信息（含最新单位净值）到 Excel
-输出：C:\Users\134971\OneDrive - Arrow Electronics, Inc\Desktop\KEVIN\Share\jijinlist.xlsx
+# --- Output path (works on local + GitHub Actions) ---
+# 默认：写到仓库下 outputs/jijinlist.xlsx
+# 如果你想本地写到 OneDrive，运行前在环境变量里设置 OUT_PATH 即可覆盖
+# Windows PowerShell 示例：
+#   $env:OUT_PATH="C:\Users\134971\OneDrive - Arrow Electronics, Inc\Desktop\KEVIN\Share\jijinlist.xlsx"
+#   python jijinalllist.py
+#
+# GitHub Actions 不要设置 OUT_PATH，就会自动写到 outputs/
 
-依赖：
-pip install -U akshare pandas openpyxl
-"""
+DEFAULT_OUT = os.path.join("outputs", "jijinlist.xlsx")
+OUT_PATH = os.getenv("OUT_PATH", DEFAULT_OUT)
 
-import os
-import time
-from datetime import datetime
-from typing import Optional, Tuple
+# 确保输出目录存在
+out_dir = os.path.dirname(OUT_PATH) or "."
+os.makedirs(out_dir, exist_ok=True)
 
-import pandas as pd
-
-try:
-    import akshare as ak
-except ImportError:
-    raise SystemExit("未安装 akshare，请先运行：pip install -U akshare")
-
-
-OUT_PATH = r"C:\Users\134971\OneDrive - Arrow Electronics, Inc\Desktop\KEVIN\Share\jijinlist.xlsx"
 TOP_N = 1000
 SLEEP_SEC = 0.03  # 每次请求间隔，防止过快被限流
 
@@ -156,3 +149,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
