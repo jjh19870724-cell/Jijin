@@ -1,3 +1,5 @@
+import os  # ✅ 必须先导入，否则 os 未定义
+
 # --- Output path (works on local + GitHub Actions) ---
 # 默认：写到仓库下 outputs/jijinlist.xlsx
 # 如果你想本地写到 OneDrive，运行前在环境变量里设置 OUT_PATH 即可覆盖
@@ -10,16 +12,15 @@
 DEFAULT_OUT = os.path.join("outputs", "jijinlist.xlsx")
 OUT_PATH = os.getenv("OUT_PATH", DEFAULT_OUT)
 
-# 确保输出目录存在
-out_dir = os.path.dirname(OUT_PATH) or "."
-os.makedirs(out_dir, exist_ok=True)
-
 TOP_N = 1000
 SLEEP_SEC = 0.03  # 每次请求间隔，防止过快被限流
 
 
 def ensure_dir(path: str) -> None:
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    """确保输出目录存在（兼容 path 直接是文件名、或没有目录的情况）"""
+    dir_ = os.path.dirname(path)
+    if dir_:
+        os.makedirs(dir_, exist_ok=True)
 
 
 def get_fund_list() -> pd.DataFrame:
@@ -149,4 +150,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
